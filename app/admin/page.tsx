@@ -1,6 +1,7 @@
-import { addProject, deleteProject } from "@/lib/actions";
+import { addProject } from "@/lib/actions";
 import Project from "@/lib/models/Project";
 import { connectToDatabase } from "@/lib/mongodb";
+import DeleteProject from "@/components/DeleteProject";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ export default async function AdminPage() {
               <input type="text" name="title" required className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">URL Slug</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">URL Slug (e.g. smart-bot)</label>
               <input type="text" name="slug" required className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div>
@@ -58,7 +59,7 @@ export default async function AdminPage() {
           </form>
         </div>
 
-        {/* DELETE PROJECT SECTION */}
+        {/* MANAGE PROJECTS SECTION */}
         <div>
           <h2 className="text-3xl font-bold mb-8 text-slate-900">Manage Projects</h2>
           <div className="space-y-4">
@@ -68,11 +69,8 @@ export default async function AdminPage() {
                   <h3 className="font-bold text-slate-900">{project.title}</h3>
                   <p className="text-sm text-slate-500">/{project.slug}</p>
                 </div>
-                <form action={deleteProject} className="flex gap-2 w-full sm:w-auto">
-                  <input type="hidden" name="id" value={project._id.toString()} />
-                  <input type="password" name="secret" placeholder="Admin Pass" required className="w-32 px-3 py-1.5 border border-red-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-red-500" />
-                  <button type="submit" className="bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-red-700 transition-colors">Delete</button>
-                </form>
+                {/* We use our new Client Component here */}
+                <DeleteProject id={project._id.toString()} />
               </div>
             ))}
             {projects.length === 0 && <p className="text-slate-500">No projects to manage.</p>}
