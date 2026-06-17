@@ -1,4 +1,3 @@
-// lib/actions.ts
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -6,11 +5,17 @@ import { redirect } from "next/navigation";
 import Project from "./models/Project";
 import { connectToDatabase } from "./mongodb";
 
+// Helper function to check password
+const verifyAuth = (secret: string | null) => {
+  if (!secret || secret !== process.env.ADMIN_PASS) {
+    throw new Error("Unauthorized: Incorrect Admin Password");
+  }
+};
+
 export async function addProject(formData: FormData) {
-  // 1. Connect to the database
+  verifyAuth(formData.get("secret") as string | null);
   await connectToDatabase();
 
-  // 2. Extract data from the form
   const title = formData.get("title") as string;
   const slug = formData.get("slug") as string;
   const shortDescription = formData.get("shortDescription") as string;
@@ -20,32 +25,30 @@ export async function addProject(formData: FormData) {
   const liveUrl = formData.get("liveUrl") as string;
   const githubUrl = formData.get("githubUrl") as string;
 
-  // 3. Convert the comma-separated technologies string into an array
-  const technologies = techString
-    .split(",")
-    .map((tech) => tech.trim())
-    .filter(Boolean);
+  const technologies = techString.split(",").map((tech) => tech.trim()).filter(Boolean);
 
   try {
-    // 4. Save the new project to MongoDB
-    await Project.create({
-      title,
-      slug,
-      shortDescription,
-      fullDetails,
-      technologies,
-      imageUrl,
-      liveUrl: liveUrl || undefined,
-      githubUrl: githubUrl || undefined,
-    });
+    await Project.create({ title, slug, shortDescription, fullDetails, technologies, imageUrl, liveUrl: liveUrl || undefined, githubUrl: githubUrl || undefined });
   } catch (error) {
-    console.error("Database Error:", error);
     throw new Error("Failed to create project. Ensure your URL slug is unique.");
   }
 
-  // 5. Clear the Next.js cache for the portfolio page so the new project shows instantly
   revalidatePath("/portfolio");
-  
-  // 6. Redirect the user back to the portfolio to see their new project
   redirect("/portfolio");
+}
+
+export async function deleteProject(formData: FormData) {
+  verifyAuth(formData.get("secret") as string | null);
+  await connectToDatabase();
+
+  const projectId = formData.get("id") as string;
+  
+  try {
+    await Project.findByIdAndDelete(projectId);
+  } catch (error) {
+    throw new Error("Failed to delete project.");
+  }
+
+  revalidatePath("/portfolio");
+  revalidatePath("/admin");
 }

@@ -7,11 +7,10 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Professional Portfolio",
-  description: "Showcasing my projects, skills, and professional experience.",
-  keywords: ["Portfolio", "Full Stack Developer", "Web Development", "Projects"],
+  title: "Sanskar Rajput | Full Stack Developer",
+  description: "Full Stack Engineer specializing in Next.js, MERN stack, and AI-driven web applications.",
+  keywords: ["Sanskar Rajput", "Full Stack Developer", "Next.js", "MERN", "IIIT Lucknow"],
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
